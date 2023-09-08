@@ -7,6 +7,7 @@ class CustomUser(AbstractUser):
         max_length=150, unique=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'password']
+    rated_recipes = models.ManyToManyField('Recipe', through='UserRanking')
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -42,12 +43,15 @@ class Comment(models.Model):
     text = models.TextField()
     date = models.DateTimeField(auto_now_add=True)
 
-class Ranking(models.Model):
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+class UserRanking(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     ranking = models.PositiveIntegerField(
         validators=[
             MinValueValidator(1, message="La calificación mínima es 1."),
             MaxValueValidator(5, message="La calificación máxima es 5.")
         ]
     )
+
+    class Meta:
+        unique_together = ('user', 'recipe')

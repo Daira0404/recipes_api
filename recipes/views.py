@@ -6,8 +6,9 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from .models import CustomUser
-from .serializers import CustomUserSerializer
+from .models import Recipe, CustomUser
+from .serializers import UserSerializer, RecipeSerializer
+from rest_framework.generics import CreateAPIView, RetrieveAPIView, ListAPIView
 
 @api_view(['POST'])
 def register_user(request):
@@ -46,7 +47,11 @@ def user_logout(request):
     if request.method == 'POST':
         try:
             # Delete the user's token to logout
-            request.auth.delete()
+            request.user.auth_token.delete()
             return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class CreateRecipeView(CreateAPIView):
+    serializer_class = RecipeSerializer
+    permission_classes = [IsAuthenticated]

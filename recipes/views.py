@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .models import Recipe, CustomUser
-from .serializers import UserSerializer, RecipeSerializer
+from .serializers import UserSerializer, RecipeSerializer, RecipesUserSerializer
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, ListAPIView
 
 @api_view(['POST'])
@@ -55,3 +55,14 @@ def user_logout(request):
 class CreateRecipeView(CreateAPIView):
     serializer_class = RecipeSerializer
     permission_classes = [IsAuthenticated]
+
+class RecipesView(ListAPIView):
+    serializer_class = RecipeSerializer
+    queryset = Recipe.objects.all()
+
+class RecipesUserView(ListAPIView):
+    serializer_class = RecipesUserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Recipe.objects.filter(user=self.request.user)
